@@ -1,4 +1,4 @@
-# EDGE Class Notes - ML Deployment End-to-End
+# Class Notes - ML Deployment End-to-End
 
 Author note:
 This document is designed for live teaching. You can follow it line by line.
