@@ -1,0 +1,12 @@
+{
+  "active_version": "v20260423-010053",
+  "created_at_utc": "2026-04-23T01:00:53.208029+00:00",
+  "accuracy": 0.833,
+  "features": [
+    "study_hours",
+    "attendance",
+    "assignments_completed"
+  ],
+  "model_file": "models\\student_pass_model.pkl",
+  "versioned_model_file": "models\\student_pass_model_v20260423-010053.pkl"
+}

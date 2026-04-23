@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import json
 import pickle
+from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
@@ -13,6 +15,8 @@ from sklearn.preprocessing import StandardScaler
 
 DATA_PATH = Path("data/dummy_students.csv")
 MODEL_PATH = Path("models/student_pass_model.pkl")
+MODEL_INFO_PATH = Path("models/model_info.json")
+FEATURES = ["study_hours", "attendance", "assignments_completed"]
 
 
 def generate_dummy_dataset(path: Path, n_rows: int = 120) -> pd.DataFrame:
@@ -49,11 +53,10 @@ def main() -> None:
     else:
         df = generate_dummy_dataset(DATA_PATH)
 
-    features = ["study_hours", "attendance", "assignments_completed"]
     target = "pass_exam"
 
     X_train, X_test, y_train, y_test = train_test_split(
-        df[features], df[target], test_size=0.2, random_state=42, stratify=df[target]
+        df[FEATURES], df[target], test_size=0.2, random_state=42, stratify=df[target]
     )
 
     model = Pipeline(
@@ -69,10 +72,31 @@ def main() -> None:
     print(f"Model accuracy: {accuracy:.3f}")
 
     MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+    model_version = f"v{timestamp}"
+    versioned_model_path = MODEL_PATH.parent / f"student_pass_model_{model_version}.pkl"
+
+    with open(versioned_model_path, "wb") as model_file:
+        pickle.dump(model, model_file)
+
     with open(MODEL_PATH, "wb") as model_file:
         pickle.dump(model, model_file)
 
+    model_info = {
+        "active_version": model_version,
+        "created_at_utc": datetime.now(timezone.utc).isoformat(),
+        "accuracy": round(float(accuracy), 3),
+        "features": FEATURES,
+        "model_file": str(MODEL_PATH),
+        "versioned_model_file": str(versioned_model_path),
+    }
+    with open(MODEL_INFO_PATH, "w", encoding="utf-8") as metadata_file:
+        json.dump(model_info, metadata_file, indent=2)
+
     print(f"Saved model to {MODEL_PATH}")
+    print(f"Saved versioned model to {versioned_model_path}")
+    print(f"Saved model metadata to {MODEL_INFO_PATH}")
 
 
 if __name__ == "__main__":

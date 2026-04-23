@@ -34,6 +34,7 @@
   <body>
     <h1>Student Pass Predictor</h1>
     <p>Use this simple UI for your live deployment demo.</p>
+    <p><strong>Model version:</strong> {{ model_version }}</p>
 
     <div class="card">
       <label>Study hours per day</label>
@@ -64,8 +65,13 @@
         });
 
         const data = await res.json();
+        if (!res.ok) {
+          document.getElementById('result').innerText = `Error: ${data.error}`;
+          return;
+        }
+
         document.getElementById('result').innerText =
-          `Prediction: ${data.prediction_label} (probability=${data.pass_probability.toFixed(3)})`;
+          `Prediction: ${data.prediction_label} (probability=${data.pass_probability.toFixed(3)}, model=${data.model_version})`;
       }
     </script>
   </body>
